@@ -34,4 +34,13 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     public boolean deductStock(Long productId, Integer quantity) {
         return baseMapper.deductStock(productId, quantity) > 0;
     }
+
+    @Override
+    public Page<Product> getByCategoryIdPage(Long categoryId, Page<Product> page) {
+        LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Product::getCategoryId, categoryId);
+        wrapper.eq(Product::getStatus, 1);
+        wrapper.orderByDesc(Product::getCreateTime);
+        return page(page, wrapper);
+    }
 }

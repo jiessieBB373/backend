@@ -1,8 +1,6 @@
 package com.merchant.controller;
 
-import com.merchant.dto.LoginRequest;
-import com.merchant.dto.LoginResponse;
-import com.merchant.dto.Result;
+import com.merchant.dto.*;
 import com.merchant.entity.User;
 import com.merchant.service.UserService;
 import com.merchant.util.JwtUtil;
@@ -54,5 +52,35 @@ public class AuthController {
             }
         }
         return Result.error(401, "未登录");
+    }
+
+    @PostMapping("/wechat-login")
+    public Result<LoginResponse> wechatLogin(@RequestBody WechatLoginRequest request) {
+        try {
+            LoginResponse response = userService.wechatLogin(request.getCode());
+            return Result.success(response);
+        } catch (RuntimeException e) {
+            if ("该微信账号未绑定".equals(e.getMessage())) {
+                return Result.error(404, e.getMessage());
+            }
+            return Result.error(e.getMessage());
+        }
+    }
+
+    @PostMapping("/bind-wechat")
+    public Result<WechatBindResponse> bindWechat(@RequestBody WechatBindRequest request, HttpServletRequest httpRequest) {
+        String token = httpRequest.getHeader("Authorization");
+        if (token == null || !token.startsWith("Bearer ")) {
+            return Result.error(401, "未登录");
+        }
+        token = token.substring(7);
+        Long userId = jwtUtil.getUserIdFromToken(token);
+
+        try {
+            WechatBindResponse response = userService.bindWechat(userId, request.getCode(),request.getAvatarUrl());
+            return Result.success("绑定成功", response);
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
     }
 }

@@ -28,23 +28,30 @@ public class OrderController {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
     }
-    
+
     @GetMapping
     public Result<Page<OrderVO>> list(PageQuery query, HttpServletRequest request) {
         Page<Order> page = new Page<>(query.getPageNum(), query.getPageSize());
-        
+        String status = query.getStatus();  // ← 获取状态参数
+
         // 获取当前用户
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             String userType = jwtUtil.getUserTypeFromToken(token);
-            
+
             if ("ADMIN".equals(userType)) {
                 // 管理员查看所有订单
+                if (status != null && !status.isEmpty()) {  // ← 有状态参数时按状态筛选
+                    return Result.success(orderService.getPageByStatus(page, status));
+                }
                 return Result.success(orderService.getPage(page));
             } else {
                 // 商户只能看自己的订单
                 Long userId = jwtUtil.getUserIdFromToken(token);
+                if (status != null && !status.isEmpty()) {  // ← 有状态参数时按状态筛选
+                    return Result.success(orderService.getByMerchantIdAndStatus(userId, page, status));
+                }
                 return Result.success(orderService.getByMerchantId(userId, page));
             }
         }

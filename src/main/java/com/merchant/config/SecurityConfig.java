@@ -36,6 +36,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/error").permitAll()
+                .requestMatchers("/upload/**").permitAll()
+                .requestMatchers("/uploads/**").permitAll()
+//                .requestMatchers("/categories/**").permitAll()
+//                .requestMatchers("/products/**").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

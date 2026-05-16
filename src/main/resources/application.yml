@@ -12,7 +12,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/wholesale_db?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
     username: root
-    password: root123
+    password: root
     druid:
       initial-size: 5
       min-idle: 5
@@ -49,3 +49,7 @@ logging:
   level:
     com.merchant: DEBUG
     org.springframework.security: INFO
+
+wechat:
+  appid: wxdd463285e3f3ddfe
+  secret: 579f0f5f5e040e05bf556c7000a96de6

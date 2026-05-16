@@ -19,6 +19,9 @@ public interface OrderMapper extends BaseMapper<Order> {
     
     @Select("SELECT * FROM orders WHERE status = #{status} AND deleted = 0 ORDER BY create_time DESC")
     Page<Order> selectByStatus(Page<Order> page, @Param("status") String status);
+
+    @Select("SELECT * FROM orders WHERE merchant_id = #{merchantId} AND status = #{status} AND deleted = 0 ORDER BY create_time DESC")
+    Page<Order> selectByMerchantIdAndStatus(Page<Order> page, @Param("merchantId") Long merchantId, @Param("status") String status);
     
     @Select("SELECT COUNT(*) FROM orders WHERE status = #{status} AND deleted = 0")
     Long countByStatus(@Param("status") String status);

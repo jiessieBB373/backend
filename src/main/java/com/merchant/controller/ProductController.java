@@ -34,10 +34,11 @@ public class ProductController {
         }
         return Result.success(product);
     }
-    
+
     @GetMapping("/category/{categoryId}")
-    public Result<?> getByCategory(@PathVariable Long categoryId) {
-        return Result.success(productService.getByCategoryId(categoryId));
+    public Result<Page<Product>> getByCategory(@PathVariable Long categoryId, PageQuery query) {
+        Page<Product> page = new Page<>(query.getPageNum(), query.getPageSize());
+        return Result.success(productService.getByCategoryIdPage(categoryId, page));
     }
     
     @PostMapping

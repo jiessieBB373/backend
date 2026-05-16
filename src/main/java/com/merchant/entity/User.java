@@ -55,6 +55,18 @@ public class User {
     
     @TableField("status")
     private Integer status;
+
+    /**
+     * 微信OpenID
+     */
+    @TableField("wechat_open_id")
+    private String wechatOpenId;
+
+    /**
+     * 微信头像URL
+     */
+    @TableField("avatar_url")
+    private String avatarUrl;
     
     @TableField(value = "create_time", fill = FieldFill.INSERT)
     private LocalDateTime createTime;

@@ -234,4 +234,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             default: return payStatus;
         }
     }
+
+    @Override
+    public Page<OrderVO> getPageByStatus(Page<Order> page, String status) {
+        Page<Order> orderPage = baseMapper.selectByStatus(page, status);
+        return convertToVO(orderPage);
+    }
+
+    @Override
+    public Page<OrderVO> getByMerchantIdAndStatus(Long merchantId, Page<Order> page, String status) {
+        Page<Order> orderPage = baseMapper.selectByMerchantIdAndStatus(page, merchantId, status);
+        return convertToVO(orderPage);
+    }
 }

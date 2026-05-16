@@ -12,8 +12,12 @@ public interface OrderService extends IService<Order> {
     Order createOrder(Long merchantId, CreateOrderRequest request);
     
     Page<OrderVO> getPage(Page<Order> page);
+
+    Page<OrderVO> getPageByStatus(Page<Order> page, String status);
     
     Page<OrderVO> getByMerchantId(Long merchantId, Page<Order> page);
+
+    Page<OrderVO> getByMerchantIdAndStatus(Long merchantId, Page<Order> page, String status);
     
     OrderVO getOrderDetail(Long orderId);
     

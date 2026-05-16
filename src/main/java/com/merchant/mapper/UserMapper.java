@@ -13,4 +13,8 @@ public interface UserMapper extends BaseMapper<User> {
     
     @Select("SELECT COUNT(*) FROM sys_user WHERE username = #{username} AND deleted = 0")
     int countByUsername(String username);
+
+    // 新增
+    @Select("SELECT * FROM sys_user WHERE wechat_open_id = #{openId} AND deleted = 0")
+    User selectByWechatOpenId(String openId);
 }
