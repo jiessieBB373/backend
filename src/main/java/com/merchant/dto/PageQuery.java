@@ -11,4 +11,6 @@ public class PageQuery {
     private Long pageSize = 10L;
     private String keyword;
     private String status;
+
+    private Long categoryId;
 }

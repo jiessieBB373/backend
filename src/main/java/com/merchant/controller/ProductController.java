@@ -20,10 +20,23 @@ public class ProductController {
     @GetMapping
     public Result<Page<Product>> list(PageQuery query) {
         Page<Product> page = new Page<>(query.getPageNum(), query.getPageSize());
-        if (query.getKeyword() != null && !query.getKeyword().isEmpty()) {
+        boolean hasKeyword = query.getKeyword() != null && !query.getKeyword().isEmpty();
+        boolean hasCategory = query.getCategoryId() != null;
+        if (hasKeyword && hasCategory) {
+            // 同时搜索关键词和分类
+            return Result.success(productService.searchByCategory(query.getKeyword(), query.getCategoryId(), page));
+        } else if (hasKeyword) {
             return Result.success(productService.search(query.getKeyword(), page));
+        } else if (hasCategory) {
+            return Result.success(productService.getByCategoryIdPage(query.getCategoryId(), page));
         }
         return Result.success(productService.getPage(page));
+    }
+
+    @GetMapping("/search")
+    public Result<Page<Product>> search(@RequestParam String keyword, PageQuery query) {
+        Page<Product> page = new Page<>(query.getPageNum(), query.getPageSize());
+        return Result.success(productService.search(keyword, page));
     }
     
     @GetMapping("/{id}")

@@ -16,4 +16,6 @@ public interface ProductService extends IService<Product> {
     boolean deductStock(Long productId, Integer quantity);
 
     Page<Product> getByCategoryIdPage(Long categoryId, Page<Product> page);
+
+    Page<Product> searchByCategory(String keyword, Long categoryId, Page<Product> page);
 }

@@ -43,4 +43,20 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         wrapper.orderByDesc(Product::getCreateTime);
         return page(page, wrapper);
     }
+
+    @Override
+    public Page<Product> searchByCategory(String keyword, Long categoryId, Page<Product> page) {
+        LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Product::getCategoryId, categoryId);
+        wrapper.eq(Product::getStatus, 1);
+        wrapper.and(w -> w
+                .like(Product::getName, keyword)
+                .or()
+                .like(Product::getBrand, keyword)
+                .or()
+                .like(Product::getSpecification, keyword)
+        );
+        wrapper.orderByDesc(Product::getCreateTime);
+        return page(page, wrapper);
+    }
 }
