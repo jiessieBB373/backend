@@ -18,4 +18,5 @@ public class LoginResponse {
     private String shopName;
     private String wechatOpenId;
     private String avatarUrl;
+    private Long merchantId;
 }

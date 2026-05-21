@@ -7,7 +7,11 @@ import com.merchant.entity.Category;
 import com.merchant.mapper.CategoryMapper;
 import com.merchant.service.CategoryService;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> implements CategoryService {
@@ -59,5 +63,82 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     @Override
     public List<Category> getByMerchantIdWithMerchantName(Long merchantId) {
         return baseMapper.selectByMerchantIdWithMerchantName(merchantId);
+    }
+
+
+    @Override
+    public List<Category> getByLevel(Long merchantId, Integer level) {
+        return baseMapper.selectByLevel(merchantId, level);
+    }
+
+    @Override
+    public List<Category> getChildrenByParentId(Long parentId) {
+        return baseMapper.selectChildrenByParentId(parentId);
+    }
+
+    @Override
+    public List<Category> getTreeByMerchantId(Long merchantId) {
+        // 1. 获取该商户所有分类
+        List<Category> allCategories = baseMapper.selectTreeByMerchantId(merchantId);
+
+        // 2. 按ID建立映射，方便查找
+        Map<Long, Category> categoryMap = new HashMap<>();
+        for (Category cat : allCategories) {
+            categoryMap.put(cat.getId(), cat);
+        }
+
+        // 3. 构建树形结构
+        List<Category> rootCategories = new ArrayList<>();
+        for (Category cat : allCategories) {
+            if (cat.getParentId() == null) {
+                // 大类（根节点）
+                cat.setChildren(new ArrayList<>());
+                rootCategories.add(cat);
+            } else {
+                // 小类（子节点），找到父节点并添加
+                Category parent = categoryMap.get(cat.getParentId());
+                if (parent != null) {
+                    if (parent.getChildren() == null) {
+                        parent.setChildren(new ArrayList<>());
+                    }
+                    parent.getChildren().add(cat);
+                }
+            }
+        }
+
+        return rootCategories;
+    }
+
+    @Override
+    public List<Category> getAllTree() {
+        // 1. 获取所有分类
+        List<Category> allCategories = baseMapper.selectAllWithMerchantName();
+
+        // 2. 按ID建立映射，方便查找
+        Map<Long, Category> categoryMap = new HashMap<>();
+        for (Category cat : allCategories) {
+            categoryMap.put(cat.getId(), cat);
+        }
+
+        // 3. 构建树形结构
+        List<Category> rootCategories = new ArrayList<>();
+        for (Category cat : allCategories) {
+            if (cat.getParentId() == null) {
+                // 大类（根节点）
+                cat.setChildren(new ArrayList<>());
+                rootCategories.add(cat);
+            } else {
+                // 小类（子节点），找到父节点并添加
+                Category parent = categoryMap.get(cat.getParentId());
+                if (parent != null) {
+                    if (parent.getChildren() == null) {
+                        parent.setChildren(new ArrayList<>());
+                    }
+                    parent.getChildren().add(cat);
+                }
+            }
+        }
+        System.out.println("【DEBUG】返回大类数量: " + rootCategories.size());
+        return rootCategories;
     }
 }

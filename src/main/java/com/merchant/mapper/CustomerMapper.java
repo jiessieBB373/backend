@@ -12,6 +12,12 @@ import java.util.List;
 @Mapper
 public interface CustomerMapper extends BaseMapper<Customer> {
 
+    /**
+     * 根据用户ID查询商户ID
+     */
+    @Select("SELECT merchant_id FROM customer WHERE user_id = #{userId} AND deleted = 0 LIMIT 1")
+    Long selectMerchantIdByUserId(@Param("userId") Long userId);
+
     @Select("SELECT c.*, u.username, u.real_name, u.phone, u.shop_address, u.status " +
             "FROM customer c LEFT JOIN sys_user u ON c.user_id = u.id " +
             "WHERE c.merchant_id = #{merchantId} AND c.deleted = 0 " +

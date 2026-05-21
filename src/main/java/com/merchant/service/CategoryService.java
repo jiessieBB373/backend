@@ -20,4 +20,28 @@ public interface CategoryService extends IService<Category> {
     List<Category> getAllWithMerchantName();
 
     List<Category> getByMerchantIdWithMerchantName(Long merchantId);
+
+    /**
+     * 根据层级获取分类
+     * @param merchantId 商户ID
+     * @param level 层级：1=大类，2=小类
+     */
+    List<Category> getByLevel(Long merchantId, Integer level);
+
+    /**
+     * 获取子分类（小类）
+     * @param parentId 父分类ID
+     */
+    List<Category> getChildrenByParentId(Long parentId);
+
+    /**
+     * 获取树形分类结构（包含大类和小类）
+     * @param merchantId 商户ID
+     */
+    List<Category> getTreeByMerchantId(Long merchantId);
+
+    /**
+     * 获取所有分类的树形结构（管理员用）
+     */
+    List<Category> getAllTree();
 }

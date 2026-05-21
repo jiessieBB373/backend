@@ -44,4 +44,32 @@ public interface CategoryMapper extends BaseMapper<Category> {
             "WHERE c.status = 1 AND c.deleted = 0 AND (c.merchant_id = #{merchantId} OR c.merchant_id IS NULL) " +
             "ORDER BY c.sort_order")
     List<Category> selectListByMerchantIdWithMerchantName(@Param("merchantId") Long merchantId);
+
+
+    /**
+     * 根据层级和商户ID查询分类
+     * @param merchantId 商户ID
+     * @param level 层级：1=大类，2=小类
+     */
+    @Select("SELECT * FROM product_category WHERE status = 1 AND deleted = 0 " +
+            "AND (merchant_id = #{merchantId} OR merchant_id IS NULL) " +
+            "AND level = #{level} ORDER BY sort_order")
+    List<Category> selectByLevel(@Param("merchantId") Long merchantId, @Param("level") Integer level);
+
+    /**
+     * 根据父ID查询子分类（小类）
+     * @param parentId 父分类ID
+     */
+    @Select("SELECT * FROM product_category WHERE status = 1 AND deleted = 0 " +
+            "AND parent_id = #{parentId} ORDER BY sort_order")
+    List<Category> selectChildrenByParentId(@Param("parentId") Long parentId);
+
+    /**
+     * 根据商户ID查询所有分类（用于构建树形结构）
+     * @param merchantId 商户ID
+     */
+    @Select("SELECT * FROM product_category WHERE status = 1 AND deleted = 0 " +
+            "AND (merchant_id = #{merchantId} OR merchant_id IS NULL) " +
+            "ORDER BY level, sort_order")
+    List<Category> selectTreeByMerchantId(@Param("merchantId") Long merchantId);
 }

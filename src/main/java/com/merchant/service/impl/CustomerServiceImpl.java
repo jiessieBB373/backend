@@ -12,6 +12,11 @@ import java.util.List;
 @Service
 public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> implements CustomerService {
 
+
+    @Override
+    public Long getMerchantIdByUserId(Long userId) {
+        return baseMapper.selectMerchantIdByUserId(userId);
+    }
     @Override
     public Page<Customer> getPageByMerchantId(Long merchantId, Page<Customer> page) {
         return baseMapper.selectPageByMerchantId(page, merchantId);

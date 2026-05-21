@@ -7,6 +7,8 @@ import com.merchant.entity.User;
 import com.merchant.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/merchants")
 public class MerchantController {
@@ -21,6 +23,14 @@ public class MerchantController {
     public Result<Page<User>> list(PageQuery query) {
         Page<User> page = new Page<>(query.getPageNum(), query.getPageSize());
         return Result.success(userService.getMerchantList(page));
+    }
+
+    @GetMapping("/all")
+    public Result<List<User>> getAllMerchants() {
+        Page<User> page = new Page<>(1, 1000);
+        Page<User> result = userService.getMerchantList(page);
+        result.getRecords().forEach(u -> u.setPassword(null));
+        return Result.success(result.getRecords());
     }
     
     @GetMapping("/{id}")

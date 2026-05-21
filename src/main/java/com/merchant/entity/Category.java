@@ -3,6 +3,7 @@ package com.merchant.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 商品分类实体类
@@ -52,6 +53,15 @@ public class Category {
      */
     @TableField("merchant_id")
     private Long merchantId;
+
+    @TableField("level")
+    private Integer level;  // 层级：1=大类，2=小类
+
+    @TableField("icon")
+    private String icon;    // 图标URL（大类用）
+
+    @TableField(exist = false)
+    private List<Category> children;  // 子分类列表（非数据库字段，用于树形结构）
 
     @TableField(exist = false)
     private String merchantName;

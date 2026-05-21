@@ -8,6 +8,11 @@ import java.util.List;
 
 public interface CustomerService extends IService<Customer> {
 
+    /**
+     * 根据用户ID获取商户ID
+     */
+    Long getMerchantIdByUserId(Long userId);
+
     Page<Customer> getPageByMerchantId(Long merchantId, Page<Customer> page);
 
     List<Customer> getListByMerchantId(Long merchantId);

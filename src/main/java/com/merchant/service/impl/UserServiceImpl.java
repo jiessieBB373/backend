@@ -9,6 +9,7 @@ import com.merchant.dto.LoginResponse;
 import com.merchant.dto.WechatBindResponse;
 import com.merchant.entity.User;
 import com.merchant.mapper.UserMapper;
+import com.merchant.service.CustomerService;
 import com.merchant.service.UserService;
 import com.merchant.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,10 +31,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Value("${wechat.secret}")
     private String wechatSecret;
+
+    private final CustomerService customerService;
     
-    public UserServiceImpl(PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public UserServiceImpl(PasswordEncoder passwordEncoder, JwtUtil jwtUtil, CustomerService customerService) {
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.customerService = customerService;
     }
     
     @Override
@@ -190,8 +194,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if ("ADMIN".equals(user.getUserType())) {
             response.setPermissions(Arrays.asList("product:manage", "merchant:manage", "order:manage"));
         } else if("MERCHANT".equals(user.getUserType())){
-            response.setPermissions(Arrays.asList("product:view", "order:create", "order:view"));
-        } else {
+            response.setPermissions(Arrays.asList("product:view", "order:manage", "order:view"));
+        } else if("CUSTOMER".equals(user.getUserType())){
+            Long merchantId = customerService.getMerchantIdByUserId(user.getId());
+            response.setMerchantId(merchantId);
             response.setPermissions(Arrays.asList("product:view", "order:create", "order:view"));
         }
 
