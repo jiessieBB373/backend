@@ -26,6 +26,18 @@ public class Order {
      */
     @TableField("merchant_id")
     private Long merchantId;
+
+    /**
+     * 下单客户ID
+     */
+    @TableField("customer_id")
+    private Long customerId;
+
+    /**
+     * 客户名称（冗余字段，便于查询）
+     */
+    @TableField("customer_name")
+    private String customerName;
     
     /**
      * 订单总金额

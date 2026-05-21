@@ -83,4 +83,22 @@ public class AuthController {
             return Result.error(e.getMessage());
         }
     }
+
+
+    @PutMapping("/change-password")
+   public Result<String> changePassword(@RequestBody ChangePasswordRequest request, HttpServletRequest httpRequest) {
+         String token = httpRequest.getHeader("Authorization");
+         if (token == null || !token.startsWith("Bearer ")) {
+              return Result.error(401, "未登录");
+         }
+         token = token.substring(7);
+         Long userId = jwtUtil.getUserIdFromToken(token);
+
+         try {
+             userService.changePassword(userId, request.getOldPassword(), request.getNewPassword());
+             return Result.success("密码修改成功", null);
+          } catch (Exception e) {
+              return Result.error(e.getMessage());
+          }
+    }
 }

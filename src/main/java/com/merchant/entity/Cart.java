@@ -29,6 +29,12 @@ public class Cart {
 
     private Integer stock;
 
+    /**
+     * 所属商户ID
+     */
+    @TableField("merchant_id")
+    private Long merchantId;
+
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 

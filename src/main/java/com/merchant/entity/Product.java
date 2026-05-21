@@ -89,6 +89,15 @@ public class Product {
     
     @TableField("status")
     private Integer status;
+
+    /**
+     * 所属商户ID（管理员查看所有为null）
+     */
+    @TableField("merchant_id")
+    private Long merchantId;
+
+    @TableField(exist = false)
+    private String merchantName;
     
     @TableField(value = "create_time", fill = FieldFill.INSERT)
     private LocalDateTime createTime;

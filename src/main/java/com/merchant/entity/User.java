@@ -77,4 +77,26 @@ public class User {
     @TableLogic
     @TableField("deleted")
     private Integer deleted;
+
+
+    /**
+     * 是否是管理员
+     */
+    public boolean isAdmin() {
+        return "ADMIN".equals(userType);
+    }
+
+    /**
+     * 是否是商户
+     */
+    public boolean isMerchant() {
+        return "MERCHANT".equals(userType);
+    }
+
+    /**
+     * 是否是客户
+     */
+    public boolean isCustomer() {
+        return "CUSTOMER".equals(userType);
+    }
 }

@@ -45,10 +45,17 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     }
 
     @Override
-    public Page<Product> searchByCategory(String keyword, Long categoryId, Page<Product> page) {
+    public Page<Product> searchByCategory(String keyword, Long categoryId, Long merchantId, Page<Product> page) {
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Product::getCategoryId, categoryId);
         wrapper.eq(Product::getStatus, 1);
+        if (merchantId != null) {
+            wrapper.and(w -> w
+                    .eq(Product::getMerchantId, merchantId)
+                    .or()
+                    .isNull(Product::getMerchantId)
+            );
+        }
+        wrapper.eq(categoryId != null, Product::getCategoryId, categoryId);
         wrapper.and(w -> w
                 .like(Product::getName, keyword)
                 .or()
@@ -56,6 +63,46 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
                 .or()
                 .like(Product::getSpecification, keyword)
         );
+        wrapper.orderByDesc(Product::getCreateTime);
+        return page(page, wrapper);
+    }
+
+    /**
+     * 根据商户ID获取商品（商户只能看到自己的商品和管理员的公共商品）
+     */
+    public Page<Product> getPageByMerchantId(Long merchantId, Page<Product> page) {
+        if (merchantId == null) {
+            // 管理员查看所有，带商户名称
+            return baseMapper.selectPageWithMerchantName(page);
+        }
+        // 商户或客户查看，带商户名称
+        return baseMapper.selectPageByMerchantIdWithMerchantName(page, merchantId);
+    }
+
+    /**
+     * 搜索商品（带商户过滤）
+     */
+    @Override
+    public Page<Product> searchByKeyword(String keyword, Long merchantId, Page<Product> page) {
+        if (merchantId == null) {
+            // 管理员搜索，带商户名称
+            return baseMapper.searchByKeywordWithMerchantName(page, keyword);
+        }
+        // 商户或客户搜索（简化处理，先按关键词搜索）
+        return baseMapper.searchByKeywordWithMerchantName(page, keyword);
+    }
+
+    @Override
+    public Page<Product> getByCategoryIdAndMerchantId(Long categoryId, Long merchantId, Page<Product> page) {
+        if (merchantId == null) {
+            // 管理员按分类查询，带商户名称
+            return baseMapper.selectByCategoryIdWithMerchantName(page, categoryId);
+        }
+        // 商户或客户按分类查询
+        LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Product::getCategoryId, categoryId);
+        wrapper.eq(Product::getStatus, 1);
+        wrapper.and(w -> w.eq(Product::getMerchantId, merchantId).or().isNull(Product::getMerchantId));
         wrapper.orderByDesc(Product::getCreateTime);
         return page(page, wrapper);
     }

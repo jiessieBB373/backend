@@ -26,4 +26,7 @@ public interface UserService extends IService<User> {
      * 绑定微信
      */
     WechatBindResponse bindWechat(Long userId, String code, String avatarUrl);
+
+
+    void changePassword(Long userId, String oldPassword, String newPassword);
 }

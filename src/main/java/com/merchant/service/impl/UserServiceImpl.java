@@ -123,6 +123,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return response;
     }
 
+    @Override
+    public void changePassword(Long userId, String oldPassword, String newPassword) {
+        User user = getById(userId);
+       if (user == null) {
+               throw new RuntimeException("用户不存在");
+           }
+       if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+               throw new RuntimeException("原密码错误");
+           }
+       if (newPassword == null || newPassword.trim().isEmpty()) {
+               throw new RuntimeException("新密码不能为空");
+           }
+       user.setPassword(passwordEncoder.encode(newPassword));
+       updateById(user);
+    }
+
     private String getWechatOpenId(String code) {
 
         // 调用微信接口
@@ -164,6 +180,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         LoginResponse response = new LoginResponse();
         response.setToken(token);
+        response.setUserId(user.getId());
         response.setUsername(user.getUsername());
         response.setUserType(user.getUserType());
         response.setShopName(user.getShopName());
@@ -172,6 +189,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         if ("ADMIN".equals(user.getUserType())) {
             response.setPermissions(Arrays.asList("product:manage", "merchant:manage", "order:manage"));
+        } else if("MERCHANT".equals(user.getUserType())){
+            response.setPermissions(Arrays.asList("product:view", "order:create", "order:view"));
         } else {
             response.setPermissions(Arrays.asList("product:view", "order:create", "order:view"));
         }
