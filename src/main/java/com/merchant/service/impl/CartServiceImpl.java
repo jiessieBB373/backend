@@ -33,8 +33,20 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
         }
 
         // 检查是否已在购物车中
-        Cart existCart = baseMapper.selectByUserIdAndProductId(userId, productId);
+        Cart existCart = baseMapper.selectByUserIdAndProductIdIncludeDeleted(userId, productId);
         if (existCart != null) {
+
+            if (existCart.getDeleted() == 1) {
+                baseMapper.restoreCart(existCart.getId(), quantity,
+                        product.getWholesalePrice(), product.getStock());
+                // 已软删除，恢复并更新数量
+                existCart.setDeleted(0);
+                existCart.setQuantity(quantity);
+                existCart.setPrice(product.getWholesalePrice());
+                existCart.setStock(product.getStock());
+                return existCart;
+            }
+
             // 已存在，更新数量
             existCart.setQuantity(existCart.getQuantity() + quantity);
             existCart.setPrice(product.getWholesalePrice());

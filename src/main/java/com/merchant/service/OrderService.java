@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface OrderService extends IService<Order> {
     
-    Order createOrder(Long merchantId, CreateOrderRequest request);
+    Order createOrder(Long merchantId, String userType, CreateOrderRequest request);
     
     Page<OrderVO> getPage(Page<Order> page);
 
@@ -26,4 +26,10 @@ public interface OrderService extends IService<Order> {
     boolean cancelOrder(Long orderId);
     
     List<OrderVO> getRecentOrders(Long merchantId);
+
+    Page<OrderVO> getByCustomerId(Long customerId, Page<Order> page);
+
+    Page<OrderVO> getByCustomerIdAndStatus(Long customerId, Page<Order> page, String status);
+
+    Page<OrderVO> searchOrders(String keyword, Page<Order> page, String status, Long merchantId, Long customerId);
 }

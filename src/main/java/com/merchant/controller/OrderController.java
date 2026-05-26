@@ -33,27 +33,40 @@ public class OrderController {
     public Result<Page<OrderVO>> list(PageQuery query, HttpServletRequest request) {
         Page<Order> page = new Page<>(query.getPageNum(), query.getPageSize());
         String status = query.getStatus();  // ← 获取状态参数
-
+        String keyword = query.getKeyword();
         // 获取当前用户
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             String userType = jwtUtil.getUserTypeFromToken(token);
 
-            if ("ADMIN".equals(userType)) {
-                // 管理员查看所有订单
-                if (status != null && !status.isEmpty()) {  // ← 有状态参数时按状态筛选
-                    return Result.success(orderService.getPageByStatus(page, status));
-                }
-                return Result.success(orderService.getPage(page));
-            } else {
-                // 商户只能看自己的订单
-                Long userId = jwtUtil.getUserIdFromToken(token);
-                if (status != null && !status.isEmpty()) {  // ← 有状态参数时按状态筛选
-                    return Result.success(orderService.getByMerchantIdAndStatus(userId, page, status));
-                }
-                return Result.success(orderService.getByMerchantId(userId, page));
+            Long customerId = null;
+            Long merchantId = null;
+            if("ADMIN".equals(userType)) {
+                merchantId = query.getAdminMerchantId();
+            } else if("MERCHANT".equals(userType)) {
+                merchantId = jwtUtil.getUserIdFromToken(token);
+            } else if ("CUSTOMER".equals(userType)) {
+                customerId = jwtUtil.getUserIdFromToken(token);
             }
+            return Result.success(orderService.searchOrders(keyword, page,status, merchantId, customerId));
+//            if ("ADMIN".equals(userType)) {
+//                // 管理员查看所有订单
+//                Long adminMerchantId = query.getAdminMerchantId();
+//                return Result.success(orderService.searchOrders(keyword, page,status, adminMerchantId, null));
+//            } else if ("MERCHANT".equals(userType)) {
+//                // 商户：查看自己商户下所有客户的订单
+//                Long userId = jwtUtil.getUserIdFromToken(token);
+//                return Result.success(orderService.searchOrders(keyword, page, status, userId, null));
+//
+//            } else if ("CUSTOMER".equals(userType)) {
+//                // 客户：只能查看自己的订单
+//                Long userId = jwtUtil.getUserIdFromToken(token);
+//                if (status != null && !status.isEmpty()) {
+//                    return Result.success(orderService.getByCustomerIdAndStatus(userId, page, status));
+//                }
+//                return Result.success(orderService.getByCustomerId(userId, page));
+//            }
         }
         return Result.error(401, "未登录");
     }
@@ -73,8 +86,9 @@ public class OrderController {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             Long userId = jwtUtil.getUserIdFromToken(token);
+            String userType = jwtUtil.getUserTypeFromToken(token);
             try {
-                Order order = orderService.createOrder(userId, request);
+                Order order = orderService.createOrder(userId, userType ,request);
                 return Result.success("下单成功", order);
             } catch (Exception e) {
                 return Result.error(e.getMessage());

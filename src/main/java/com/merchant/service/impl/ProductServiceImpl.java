@@ -45,8 +45,12 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     }
 
     @Override
-    public Page<Product> searchByCategory(String keyword, Long categoryId, Long merchantId, Page<Product> page) {
+    public Page<Product> searchByCategories(String keyword, List<Long> categoryIds, Long merchantId, Page<Product> page) {
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
+        // ==================== 修改：使用 in 查询多个分类 ====================
+        if (categoryIds != null && !categoryIds.isEmpty()) {
+            wrapper.in(Product::getCategoryId, categoryIds);
+        }
         wrapper.eq(Product::getStatus, 1);
         if (merchantId != null) {
             wrapper.and(w -> w
@@ -55,7 +59,6 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
                     .isNull(Product::getMerchantId)
             );
         }
-        wrapper.eq(categoryId != null, Product::getCategoryId, categoryId);
         wrapper.and(w -> w
                 .like(Product::getName, keyword)
                 .or()
@@ -93,14 +96,17 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     }
 
     @Override
-    public Page<Product> getByCategoryIdAndMerchantId(Long categoryId, Long merchantId, Page<Product> page) {
+    public Page<Product> getByCategoryIdsAndMerchantId(List<Long> categoryIds, Long merchantId, Page<Product> page) {
         if (merchantId == null) {
             // 管理员按分类查询，带商户名称
-            return baseMapper.selectByCategoryIdWithMerchantName(page, categoryId);
+            return baseMapper.selectByCategoryIdWithMerchantName(page, categoryIds);
         }
         // 商户或客户按分类查询
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Product::getCategoryId, categoryId);
+        // ==================== 修改：使用 in 查询多个分类 ====================
+        if (categoryIds != null && !categoryIds.isEmpty()) {
+            wrapper.in(Product::getCategoryId, categoryIds);
+        }
         wrapper.eq(Product::getStatus, 1);
         wrapper.and(w -> w.eq(Product::getMerchantId, merchantId).or().isNull(Product::getMerchantId));
         wrapper.orderByDesc(Product::getCreateTime);

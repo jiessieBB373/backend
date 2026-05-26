@@ -15,4 +15,6 @@ public class PageQuery {
     private Long merchantId;
     private Long categoryId;
     private Long customerId;
+
+    private Long adminMerchantId;
 }

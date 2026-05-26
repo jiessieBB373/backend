@@ -41,9 +41,17 @@ public interface ProductMapper extends BaseMapper<Product> {
             "ORDER BY p.create_time DESC")
     Page<Product> searchByKeywordWithMerchantName(Page<Product> page, @Param("keyword") String keyword);
 
-    @Select("SELECT p.*, u.shop_name AS merchant_name FROM product p " +
+    @Select("<script>" +
+            "SELECT p.*, u.shop_name AS merchant_name FROM product p " +
             "LEFT JOIN sys_user u ON p.merchant_id = u.id " +
-            "WHERE p.status = 1 AND p.deleted = 0 AND p.category_id = #{categoryId} " +
-            "ORDER BY p.create_time DESC")
-    Page<Product> selectByCategoryIdWithMerchantName(Page<Product> page, @Param("categoryId") Long categoryId);
+            "WHERE p.status = 1 AND p.deleted = 0 " +
+            "<if test='categoryIds != null and categoryIds.size() > 0'>" +
+            "AND p.category_id IN " +
+            "<foreach collection='categoryIds' item='id' open='(' separator=',' close=')'>" +
+            "#{id}" +
+            "</foreach>" +
+            "</if>" +
+            "ORDER BY p.create_time DESC" +
+            "</script>")
+    Page<Product> selectByCategoryIdWithMerchantName(Page<Product> page, @Param("categoryIds") List<Long> categoryIds);
 }

@@ -17,11 +17,11 @@ public interface ProductService extends IService<Product> {
 
     Page<Product> getByCategoryIdPage(Long categoryId, Page<Product> page);
 
-    Page<Product> searchByCategory(String keyword, Long categoryId, Long merchantId, Page<Product> page);
+    Page<Product> searchByCategories(String keyword, List<Long> categoryIds, Long merchantId, Page<Product> page);
 
     Page<Product> getPageByMerchantId(Long merchantId, Page<Product> page);
 
     Page<Product> searchByKeyword(String keyword, Long merchantId, Page<Product> page);
 
-    Page<Product> getByCategoryIdAndMerchantId(Long categoryId, Long merchantId, Page<Product> page);
+    Page<Product> getByCategoryIdsAndMerchantId(List<Long> categoryIds, Long merchantId, Page<Product> page);
 }

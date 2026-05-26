@@ -13,6 +13,7 @@ import com.merchant.mapper.OrderItemMapper;
 import com.merchant.mapper.OrderMapper;
 import com.merchant.mapper.ProductMapper;
 import com.merchant.mapper.UserMapper;
+import com.merchant.service.CustomerService;
 import com.merchant.service.OrderService;
 import com.merchant.service.ProductService;
 import org.springframework.stereotype.Service;
@@ -33,21 +34,30 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     private final ProductMapper productMapper;
     private final UserMapper userMapper;
     private final ProductService productService;
+    private final CustomerService customerService;
     
     public OrderServiceImpl(OrderItemMapper orderItemMapper, ProductMapper productMapper, 
-                           UserMapper userMapper, ProductService productService) {
+                           UserMapper userMapper, ProductService productService, CustomerService customerService) {
         this.orderItemMapper = orderItemMapper;
         this.productMapper = productMapper;
         this.userMapper = userMapper;
         this.productService = productService;
+        this.customerService = customerService;
     }
     
     @Override
     @Transactional
-    public Order createOrder(Long merchantId, CreateOrderRequest request) {
+    public Order createOrder(Long userId, String userType, CreateOrderRequest request) {
         Order order = new Order();
         order.setOrderNo(generateOrderNo());
-        order.setMerchantId(merchantId);
+        if ("CUSTOMER".equals(userType)) {
+            // 客户下单：获取所属商户ID
+            Long merchantId = customerService.getMerchantIdByUserId(userId);
+            order.setMerchantId(merchantId);  // ← 保存的是商户ID
+        } else {
+            order.setMerchantId(userId);
+        }
+        order.setCustomerId(userId);
         order.setDeliveryAddress(request.getDeliveryAddress());
         order.setContactName(request.getContactName());
         order.setContactPhone(request.getContactPhone());
@@ -244,6 +254,24 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     @Override
     public Page<OrderVO> getByMerchantIdAndStatus(Long merchantId, Page<Order> page, String status) {
         Page<Order> orderPage = baseMapper.selectByMerchantIdAndStatus(page, merchantId, status);
+        return convertToVO(orderPage);
+    }
+
+    @Override
+    public Page<OrderVO> getByCustomerId(Long customerId, Page<Order> page) {
+        Page<Order> orderPage = baseMapper.selectByCustomerId(page, customerId);
+        return convertToVO(orderPage);
+    }
+
+    @Override
+    public Page<OrderVO> getByCustomerIdAndStatus(Long customerId, Page<Order> page, String status) {
+        Page<Order> orderPage = baseMapper.selectByCustomerIdAndStatus(page, customerId, status);
+        return convertToVO(orderPage);
+    }
+
+    @Override
+    public Page<OrderVO> searchOrders(String keyword, Page<Order> page, String status, Long merchantId, Long customerId) {
+        Page<Order> orderPage = baseMapper.searchOrders(page, keyword, status, merchantId, customerId);
         return convertToVO(orderPage);
     }
 }
